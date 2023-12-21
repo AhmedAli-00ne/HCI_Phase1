@@ -22,6 +22,10 @@ namespace TuioDemo
             this.Paint += Form5_Paint;
         }
 
+        public Form5()
+        {
+        }
+
         private void Form5_Paint(object sender, PaintEventArgs e)
         {
             DrawScene(e.Graphics);

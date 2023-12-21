@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from dollarpy import Recognizer, Template, Point
 import time 
 
-vid = cv2.VideoCapture(0)
+#vid = cv2.VideoCapture(0)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -15,18 +15,25 @@ mp_pose = mp.solutions.pose
 mp_holistic = mp.solutions.holistic
 
 templates=[]
-
+os.startfile("bin\\Debug\\TuioDemo.exe")
 
 soc = socket.socket()
 hostname = "localhost"
 port=65434
 conn = None
+Flag = 0
+Flag2 = 0
 
 def InitializeSocket():
     soc.bind((hostname,port))
     soc.listen(1)
     conn , addr = soc.accept()
     print("device connected")
+    if conn != None:
+        conn.send(Flag.encode("utf-8"))
+        Flag2 = int(conn.recv())
+        if Flag == 1:
+            Flag = 0
 def getPointsFromVideo(videoURL,label):
     cap = cv2.VideoCapture(videoURL)#web cam =0 , else enter filename
     # Initiate holistic model
@@ -118,7 +125,6 @@ def getPointsFromVideo(videoURL,label):
                     right_pinky.append(Point(newlist[7].x,newlist[7].y,8))
                     left_index.append(Point(newlist[8].x,newlist[8].y,9))
                     right_index.append(Point(newlist[9].x,newlist[9].y,10))
-
                     m_left_shoulder.append((newlist[0].x,newlist[0].y))
                     m_right_shoulder.append((newlist[1].x,newlist[1].y))
                     m_left_elbos.append((newlist[2].x,newlist[2].y))
@@ -129,26 +135,11 @@ def getPointsFromVideo(videoURL,label):
                     m_right_pinky.append((newlist[7].x,newlist[7].y))
                     m_left_index.append((newlist[8].x,newlist[8].y))
                     m_right_index.append((newlist[9].x,newlist[9].y))
-                    #Pose Landmarks
-                    #pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in newlist]).flatten())
-
-                    # Extract Face landmarks
-                    #face = results.face_landmarks.landmark
-
-                    # Concate rows
-                    #row = pose_row
-
-
-
-
                 except:
                     pass
-
                 cv2.imshow(label, image)
-
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
-
     cap.release()
     cv2.destroyAllWindows()
     points = left_shoulder+left_elbos+left_wirst+left_pinky+left_index
@@ -156,36 +147,20 @@ def getPointsFromVideo(videoURL,label):
     xs, ys = zip(*m_left_shoulder)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
     xs, ys = zip(*m_left_elbos)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
     xs, ys = zip(*m_left_wirst)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
-
     xs, ys = zip(*m_left_pinky)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
     xs, ys = zip(*m_left_index)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
-
-
-
-
     plt.gca().invert_yaxis()
-
-
     plt.show()
-
     return points
 def getPoints(label):
     cap = cv2.VideoCapture(0)#web cam =0 , else enter filename
@@ -289,95 +264,50 @@ def getPoints(label):
                     m_right_pinky.append((newlist[7].x,newlist[7].y))
                     m_left_index.append((newlist[8].x,newlist[8].y))
                     m_right_index.append((newlist[9].x,newlist[9].y))
-                    #Pose Landmarks
-                    #pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in newlist]).flatten())
-
-                    # Extract Face landmarks
-                    #face = results.face_landmarks.landmark
-
-                    # Concate rows
-                    #row = pose_row
-
-
-
-
                 except:
                     pass
-
                 cv2.imshow(label, image)
-
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
-
     cap.release()
     cv2.destroyAllWindows()
-    points = left_shoulder+left_elbos+left_wirst+left_pinky+left_index
+    points = left_elbos+left_wirst+left_pinky+left_index
     print(label)
     xs, ys = zip(*m_left_shoulder)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
     xs, ys = zip(*m_left_elbos)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
     xs, ys = zip(*m_left_wirst)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
-
     xs, ys = zip(*m_left_pinky)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
     xs, ys = zip(*m_left_index)
     plt.plot(xs, ys, 'o')
     plt.plot(xs, ys, '-')
-
-
-
-
-
-
     plt.gca().invert_yaxis()
-
-
     plt.show()
-
     return points
-def PoseDetection():
-    with mp_pose.Pose(
-    min_detection_confidence=0.7,
-    min_tracking_confidence=0.7) as pose:
-        while vid.isOpened():
-            success, image = vid.read()
-            if not success:
-                print("Ignoring empty camera frame.")
-                break
-            image.flags.writeable = False
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = pose.process(image)
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            mp_drawing.draw_landmarks(
-            image,
-            results.pose_landmarks,
-            mp_pose.POSE_CONNECTIONS,
-            landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-            cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
-            if cv2.waitKey(5) & 0xFF == 27:
-                break
-vid = "C:\\Users\\ahmed\\OneDrive\\Desktop\\HCI phase 1\\Break Correct.mp4"
-points = getPointsFromVideo(vid,"Break") 
-tmpl_2 = Template('Break', points)
-templates.append(tmpl_2)
-points = getPoints("Break Correct")
-start = time.time()
-recognizer = Recognizer(templates)
-result = recognizer.recognize(points)
-end = time.time()
-duration=end-start
-print(result)
-print(duration)
+def CheckForBreak():
+    vid = "Break Correct.mp4"
+    points = getPointsFromVideo(vid,"Break") 
+    tmpl_2 = Template('Break', points)
+    templates.append(tmpl_2)
+    points = getPoints("Break Correct")
+    start = time.time()
+    recognizer = Recognizer(templates)
+    result = recognizer.recognize(points)
+    end = time.time()
+    duration=end-start
+    print(result)
+    print(duration)
+    os.startfile("C:\\Users\\ahmed\Downloads\\reacTIVision-1.5.1-win64\\reacTIVision-1.5.1-win64\\reacTIVision.exe")
+thread1 = threading.Thread(target=InitializeSocket)
+thread2 = threading.Thread(target=CheckForBreak)
+thread1.start()
+thread2.start()
+thread2.join()
+thread1.join()

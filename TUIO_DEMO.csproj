@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{83F18314-A320-4148-A5A5-D8FD091FC407}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TuioDemo</RootNamespace>
     <AssemblyName>TuioDemo</AssemblyName>
@@ -40,6 +40,9 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <NoStdLib>false</NoStdLib>
     <PlatformTarget>anycpu</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -87,6 +90,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Form5.resx">
       <DependentUpon>Form5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TuioDemo.resx">
+      <DependentUpon>TuioDemo.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
